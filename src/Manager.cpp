@@ -17,7 +17,7 @@ BDD_ID Manager::createVar(const std::string &label) {
     variable.id = uniqueTable.size();
     variable.top_var = uniqueTable.size();
     uniqueTable.push_back(variable);
-    return uniqueTable.size();
+    return uniqueTable.size() - 1;
 }
 
 const BDD_ID &Manager::True() {
@@ -155,8 +155,8 @@ size_t Manager::uniqueTableSize() {
 }
 
 Manager::Manager() {
-    uniqueTable.push_back(BDDNode {"False",0,0,0,0});
-    uniqueTable.push_back(BDDNode {"True",1,1,1,1});
+    uniqueTable.push_back(BDDNode {"False",falseNodeID,falseNodeID,falseNodeID,falseNodeID});
+    uniqueTable.push_back(BDDNode {"True",trueNodeID,trueNodeID,trueNodeID,trueNodeID});
 }
 
 Manager::~Manager() = default;
