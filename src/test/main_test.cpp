@@ -4,11 +4,12 @@
 
 #include <gtest/gtest.h>
 #include "Manager.h"
+#include "src/gtest-internal-inl.h"
 
 class testManager : public ::testing::Test{
 protected:
     ClassProject::Manager manager;
-    ClassProject::BDD_ID trueTerminal, falseTerminal,a,b,c,d;
+    ClassProject::BDD_ID trueTerminal, falseTerminal,a,b,c,d,aOrb,cAndd,f;
     void SetUp() override {
         trueTerminal = manager.True();
         falseTerminal = manager.False();
@@ -16,6 +17,9 @@ protected:
         b = manager.createVar("b");
         c = manager.createVar("c");
         d = manager.createVar("d");
+        aOrb = manager.or2(2,3);
+        cAndd = manager.and2(4,5);
+        f = manager.and2(6,7);
     }
 };
 
@@ -30,22 +34,22 @@ TEST_F(testManager, TrueAndFalseNodesTest) {
 }
 
 TEST_F(testManager, creatVariableTest) {
-    EXPECT_EQ(a,2);
-    EXPECT_EQ(b,3);
-    EXPECT_EQ(c,4);
-    EXPECT_EQ(d,5);
-    EXPECT_EQ(manager.topVar(a),a);
-    EXPECT_EQ(manager.topVar(b),b);
-    EXPECT_EQ(manager.topVar(c),c);
-    EXPECT_EQ(manager.topVar(d),d);
-    EXPECT_EQ(manager.uniqueTable[a].high,trueTerminal);
-    EXPECT_EQ(manager.uniqueTable[a].low,falseTerminal);
-    EXPECT_EQ(manager.uniqueTable[b].high,trueTerminal);
-    EXPECT_EQ(manager.uniqueTable[b].low,falseTerminal);
-    EXPECT_EQ(manager.uniqueTable[c].high,trueTerminal);
-    EXPECT_EQ(manager.uniqueTable[c].low,falseTerminal);
-    EXPECT_EQ(manager.uniqueTable[d].high,trueTerminal);
-    EXPECT_EQ(manager.uniqueTable[d].low,falseTerminal);
+    ASSERT_EQ(a,2);
+    ASSERT_EQ(b,3);
+    ASSERT_EQ(c,4);
+    ASSERT_EQ(d,5);
+    ASSERT_EQ(manager.topVar(a),a);
+    ASSERT_EQ(manager.topVar(b),b);
+    ASSERT_EQ(manager.topVar(c),c);
+    ASSERT_EQ(manager.topVar(d),d);
+    ASSERT_EQ(manager.uniqueTable[a].high,trueTerminal);
+    ASSERT_EQ(manager.uniqueTable[a].low,falseTerminal);
+    ASSERT_EQ(manager.uniqueTable[b].high,trueTerminal);
+    ASSERT_EQ(manager.uniqueTable[b].low,falseTerminal);
+    ASSERT_EQ(manager.uniqueTable[c].high,trueTerminal);
+    ASSERT_EQ(manager.uniqueTable[c].low,falseTerminal);
+    ASSERT_EQ(manager.uniqueTable[d].high,trueTerminal);
+    ASSERT_EQ(manager.uniqueTable[d].low,falseTerminal);
 }
 
 TEST_F(testManager, uniqueTableSizeIncreaseByOneAfterCreateVar) {
@@ -70,6 +74,147 @@ TEST_F(testManager, isVariableTest) {
     }
 }
 
+TEST_F(testManager, topVariableTest) {
+    ASSERT_EQ(manager.topVar(aOrb), a);
+    ASSERT_EQ(manager.topVar(cAndd), c);
+    ASSERT_EQ(manager.topVar(8), b);
+    ASSERT_EQ(manager.topVar(f), a);
+}
+
+TEST_F(testManager, iteTest) {
+    ASSERT_EQ(manager.ite(trueTerminal,a,b), a);
+    ASSERT_EQ(manager.ite(falseTerminal,a,b), b);
+    ASSERT_EQ(manager.ite(a,b,b), b);
+    const ClassProject::BDD_ID existed = manager.ite(a,trueTerminal,falseTerminal);
+    ASSERT_EQ(manager.ite(a,trueTerminal,falseTerminal),existed);
+    ClassProject::BDD_ID result = manager.ite(a, b, trueTerminal);
+    ASSERT_NE(result, a);
+    ASSERT_NE(result, b);
+    ASSERT_NE(result, trueTerminal);
+    ASSERT_NE(result, falseTerminal);
+}
+
+TEST_F(testManager, coFactorTrueTest) {
+    ASSERT_EQ(manager.coFactorTrue(manager.trueNodeID,a),manager.trueNodeID);
+    ASSERT_EQ(manager.coFactorTrue(manager.falseNodeID,a),manager.falseNodeID);
+    ASSERT_EQ(manager.coFactorTrue(a,a),trueTerminal);
+    ASSERT_EQ(manager.coFactorTrue(b,b),trueTerminal);
+    ASSERT_EQ(manager.coFactorTrue(b,a),b);
+    ASSERT_EQ(manager.coFactorTrue(aOrb,a),trueTerminal);
+    ASSERT_EQ(manager.coFactorTrue(cAndd,a),cAndd);
+}
+
+TEST_F(testManager, coFactorFalseTest) {
+    ASSERT_EQ(manager.coFactorFalse(manager.trueNodeID,a),manager.trueNodeID);
+    ASSERT_EQ(manager.coFactorFalse(manager.falseNodeID,a),manager.falseNodeID);
+    ASSERT_EQ(manager.coFactorFalse(a,a),falseTerminal);
+    ASSERT_EQ(manager.coFactorFalse(b,b),falseTerminal);
+    ASSERT_EQ(manager.coFactorFalse(b,a),b);
+    ASSERT_EQ(manager.coFactorFalse(aOrb,a),b);
+    ASSERT_EQ(manager.coFactorFalse(cAndd,a),cAndd);
+}
+
+TEST_F(testManager, or2Test) {
+    ASSERT_EQ(manager.uniqueTable[aOrb].low, b);
+    ASSERT_EQ(manager.uniqueTable[aOrb].high, trueTerminal);
+}
+
+TEST_F(testManager, and2Test) {
+    ASSERT_EQ(manager.uniqueTable[cAndd].high, d);
+    ASSERT_EQ(manager.uniqueTable[cAndd].low, falseTerminal);
+}
+
+TEST_F(testManager, negTest)
+{
+    ASSERT_EQ(manager.neg(manager.True()), manager.False());
+    ASSERT_EQ(manager.neg(manager.False()), manager.True());
+    ASSERT_EQ(manager.neg(a), manager.ite(a, manager.False(), manager.True()));
+}
+
+TEST_F(testManager, xor2Test) {
+    ClassProject::BDD_ID xor2 = manager.xor2(a,b);
+    ASSERT_EQ(manager.uniqueTable[xor2].high, manager.neg(b));
+    ASSERT_EQ(manager.uniqueTable[xor2].low, b);
+}
+
+TEST_F(testManager, nand2Test) {
+    ClassProject::BDD_ID nand2 = manager.nand2(a,b);
+    ASSERT_EQ(manager.uniqueTable[nand2].high, manager.neg(b));
+    ASSERT_EQ(manager.uniqueTable[nand2].low, trueTerminal);
+}
+
+TEST_F(testManager, nor2Test) {
+    ClassProject::BDD_ID nor2 = manager.nor2(a,b);
+    ASSERT_EQ(manager.uniqueTable[nor2].high, falseTerminal);
+    ASSERT_EQ(manager.uniqueTable[nor2].low, manager.neg(b));
+}
+
+TEST_F(testManager, xnor2Test) {
+    ClassProject::BDD_ID xnor2 = manager.xnor2(a,b);
+    ASSERT_EQ(manager.uniqueTable[xnor2].high, b);
+    ASSERT_EQ(manager.uniqueTable[xnor2].low, manager.neg(b));
+}
+
+TEST_F(testManager, getTopVariableNameTest) {
+    ASSERT_EQ(manager.getTopVarName(trueTerminal), "True");
+    ASSERT_EQ(manager.getTopVarName(falseTerminal), "False");
+    ASSERT_EQ(manager.getTopVarName(a), "a");
+    ASSERT_EQ(manager.getTopVarName(b), "b");
+    ASSERT_EQ(manager.getTopVarName(c), "c");
+    ASSERT_EQ(manager.getTopVarName(d), "d");
+    ASSERT_EQ(manager.getTopVarName(aOrb), "a");
+    ASSERT_EQ(manager.getTopVarName(cAndd), "c");
+    ASSERT_EQ(manager.getTopVarName(8), "b");
+    ASSERT_EQ(manager.getTopVarName(9), "a");
+}
+
+TEST_F(testManager, findNodesTest) {
+    std::set<ClassProject::BDD_ID> nodes;
+    manager.findNodes(trueTerminal, nodes);
+    std::set trueSet = {trueTerminal};
+    ASSERT_EQ(nodes, trueSet);
+    nodes.clear();
+    manager.findNodes(a, nodes);
+    std::set aSet = {falseTerminal, trueTerminal, a};
+    ASSERT_EQ(nodes, aSet);
+    nodes.clear();
+    manager.findNodes(aOrb, nodes);
+    std::set aOrbSet = {falseTerminal, trueTerminal, b, aOrb};
+    ASSERT_EQ(nodes, aOrbSet);
+    nodes.clear();
+    manager.findNodes(cAndd, nodes);
+    std::set cAnddSet = {falseTerminal, trueTerminal, d, cAndd};
+    ASSERT_EQ(nodes, cAnddSet);
+    nodes.clear();
+    manager.findNodes(9, nodes);
+    std::set<ClassProject::BDD_ID> fSet = {falseTerminal, trueTerminal, d, cAndd, 8, 9};
+    ASSERT_EQ(nodes, fSet);
+    nodes.clear();
+}
+
+TEST_F(testManager, findVarsTest) {
+    std::set<ClassProject::BDD_ID> nodes;
+    manager.findVars(trueTerminal, nodes);
+    std::set<ClassProject::BDD_ID> trueSet = {};
+    ASSERT_EQ(nodes, trueSet);
+    nodes.clear();
+    manager.findVars(a, nodes);
+    std::set aSet = {a};
+    ASSERT_EQ(nodes, aSet);
+    nodes.clear();
+    manager.findVars(aOrb, nodes);
+    std::set aOrbSet = {a, b};
+    ASSERT_EQ(nodes, aOrbSet);
+    nodes.clear();
+    manager.findVars(cAndd, nodes);
+    std::set cAnddSet = {c, d};
+    ASSERT_EQ(nodes, cAnddSet);
+    nodes.clear();
+    manager.findVars(9, nodes);
+    std::set fSet = {a, b, c, d};
+    ASSERT_EQ(nodes, fSet);
+    nodes.clear();
+}
 
 int main(int argc, char* argv[])
 {
