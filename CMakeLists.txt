@@ -18,6 +18,19 @@ if(result)
     message(FATAL_ERROR "Build step for googletest failed: ${result}")
 endif()
 
+add_executable(runTests
+        src/Test/main_test.cpp.cpp
+)
+
+target_link_libraries(runTests
+        PRIVATE
+        src/Manager.cpp
+        gtest_main
+)
+
+include(GoogleTest)
+gtest_discover_tests(runTests)
+
 # Add googletest directly to our build. This defines
 # the gtest and gtest_main targets.
 add_subdirectory(${CMAKE_SOURCE_DIR}/gtest/googletest-src
