@@ -49,13 +49,9 @@ include_directories(${CMAKE_SOURCE_DIR}/src/verify/)
 link_directories(${CMAKE_SOURCE_DIR}/src/verify/)
 
 add_subdirectory(src)
+add_subdirectory(src/test)
 add_executable(VDSProject src/main.cpp)
 target_link_libraries(VDSProject Manager)
 
 enable_testing()
-
-add_executable(VDSProject_test src/test/main_test.cpp)
-target_link_libraries(VDSProject_test gtest gtest_main Manager)
-
-add_test(NAME AllTests COMMAND VDSProject_test)
 
