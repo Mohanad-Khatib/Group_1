@@ -30,6 +30,9 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/gtest/googletest-src
 if (CMAKE_VERSION VERSION_LESS 2.8.11)
     include_directories("${gtest_SOURCE_DIR}/include")
 endif()
+enable_testing()
+add_executable(VDSProject_test src/Test/main_test.cpp)
+
 
 #Include dirs
 include_directories(${CMAKE_SOURCE_DIR}/lib)
