@@ -7,7 +7,7 @@ on:
     branches: [ "master" ]
 
 env:
-  BUILD_TYPE: Debug
+  BUILD_TYPE: Release
 
 jobs:
   build:
@@ -17,15 +17,28 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y cmake g++ ninja-build
+      - name: Install GTest
+        run: |
+          sudo apt-get install libgtest-dev
+          cd /usr/src/gtest
+          sudo cmake CMakeLists.txt
+          sudo make
+
+      - name: Install graphviz
+        run: sudo apt-get update && sudo apt install libgtest-dev graphviz
+
+      - name: Install lcov
+        run: sudo apt-get update && sudo apt install lcov
+
+      - name: Install boost
+        run: sudo apt-get update && sudo apt install libboost-all-dev
 
       - name: Configure CMake
-        run: cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -G Ninja
+        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
-      - name: Build project
-        run: cmake --build build
+      - name: Build
+        run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
-      - name: Run tests
-        working-directory: ./build
-        run: ctest --output-on-failure
+      - name: Make tests and run
+        working-directory: ${{github.workspace}}/build
+        run: make VDSProject_test && src/test/VDSProject_test
