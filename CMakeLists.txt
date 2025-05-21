@@ -49,7 +49,8 @@ include_directories(${CMAKE_SOURCE_DIR}/src/verify/)
 link_directories(${CMAKE_SOURCE_DIR}/src/verify/)
 
 add_subdirectory(src)
-add_subdirectory(src/test)
+add_subdirectory(src/test ${CMAKE_BINARY_DIR}/test_build)
+
 add_executable(VDSProject src/main.cpp)
 target_link_libraries(VDSProject Manager)
 
