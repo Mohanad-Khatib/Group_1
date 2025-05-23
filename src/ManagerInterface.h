@@ -14,6 +14,8 @@ namespace ClassProject {
 
     class ManagerInterface {
     public:
+        virtual ~ManagerInterface() = default;
+
         virtual BDD_ID createVar(const std::string &label) = 0;
         virtual const BDD_ID &True() = 0;
         virtual const BDD_ID &False() = 0;
@@ -36,7 +38,7 @@ namespace ClassProject {
         virtual void findNodes(const BDD_ID &root, std::set<BDD_ID> &nodes_of_root) = 0;
         virtual void findVars(const BDD_ID &root, std::set<BDD_ID> &vars_of_root) = 0;
         virtual size_t uniqueTableSize() = 0;
-        //virtual void visualizeBDD(const std::string &filepath, const BDD_ID &root) = 0;*/
+        virtual void visualizeBDD(const std::string &filepath, const BDD_ID &root) = 0;
     };
 }
 

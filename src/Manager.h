@@ -1,12 +1,8 @@
 // A minimalistic BDD library, following Wolfgang Kunz lecture slides
 //
 // Created by Markus Wedler 2014
-
-#ifndef VDSPROJECT_MANAGER_H
-#define VDSPROJECT_MANAGER_H
-
+#pragma once
 #include <vector>
-
 #include "ManagerInterface.h"
 
 namespace ClassProject {
@@ -23,7 +19,7 @@ namespace ClassProject {
         BDD_ID h;
         BDD_ID r;
     };
-    class Manager : public ManagerInterface {
+    class Manager final : public ManagerInterface {
     public:
         std::vector<BDDNode> uniqueTable;
         std::vector<ComputedTableEntry> computedTable;
@@ -52,10 +48,8 @@ namespace ClassProject {
         void findNodes(const BDD_ID &root, std::set<BDD_ID> &nodes_of_root) override;
         void findVars(const BDD_ID &root, std::set<BDD_ID> &vars_of_root) override;
         size_t uniqueTableSize() override;
-        //void visualizeBDD(const std::string &filepath, const BDD_ID &root) override;
+        void visualizeBDD(const std::string &filepath, const BDD_ID &root) override;
         Manager();
         ~Manager();
     };
 }
-
-#endif

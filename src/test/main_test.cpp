@@ -92,6 +92,7 @@ TEST_F(testManager, iteTest) {
     ASSERT_NE(result, b);
     ASSERT_NE(result, trueTerminal);
     ASSERT_NE(result, falseTerminal);
+    EXPECT_EQ(manager.ite(a, trueTerminal, falseTerminal), a);
 }
 
 TEST_F(testManager, coFactorTrueTest) {

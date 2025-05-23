@@ -32,4 +32,5 @@ int main(int argc, char* argv[])
                   << ", h: " << entry.h
                   << ", r: " << entry.r << '\n';
     }
+    manager.visualizeBDD("C:/Users/mohan/Desktop/bdd.dot", 9);
 }

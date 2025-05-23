@@ -5,6 +5,7 @@
 #include <fstream>
 #include <functional>
 #include <iostream>
+#include <queue>
 #include <set>
 
 using namespace ClassProject;
@@ -47,9 +48,10 @@ BDD_ID Manager::topVar(BDD_ID f) {
 BDD_ID Manager::ite(BDD_ID i, BDD_ID t, BDD_ID e) {
     if (isConstant(i) && i == 1) return t;
     if ((isConstant(i) && i == 0) || t == e) return e;
+    if (isVariable(i) && t == True() && e == False()) return i;
+    if (isVariable(i) && t == False() && e == True()) return neg(i);
     for (const auto& entry : computedTable) {
         if (entry.f == i && entry.g == t && entry.h == e) {
-            printf("d");
             return entry.r;
         }
     }
@@ -153,6 +155,41 @@ void Manager::findVars(const BDD_ID &root, std::set<BDD_ID> &vars_of_root) {
 
 size_t Manager::uniqueTableSize() {
     return uniqueTable.size();
+}
+
+void Manager::visualizeBDD(const std::string &filepath, const BDD_ID &root) {
+    std::ofstream dot_file(filepath);
+    if (!dot_file.is_open()) {
+        std::cerr << "Failed to open file: " << filepath << std::endl;
+        return;
+    }
+    dot_file << "digraph BDD {\n";
+    dot_file << "  rankdir=TB;\n";
+    dot_file << "  size=\"4,6\";\n";
+    dot_file << "  node [shape = circle];\n";
+    std::set<BDD_ID> visited;
+    std::function<void(BDD_ID)> writeNode;
+    writeNode = [&](BDD_ID id) {
+        if (visited.count(id)) return;
+        visited.insert(id);
+        const BDDNode &node = uniqueTable[id];
+        if (node.top_var == 0 || node.top_var == 1) {
+            dot_file << "  " << id << " [shape=box, label=\"" << node.top_var << "\"];\n";
+        } else {
+            dot_file << "  " << id << " [label=\"" << node.top_var << "\"];\n";
+        }
+        if (node.low != id) {
+            dot_file << "  " << id << " -> " << node.low << " [style=dotted label=\"0\"];\n";
+            writeNode(node.low);
+        }
+        if (node.high != id) {
+            dot_file << "  " << id << " -> " << node.high << " [label=\"1\"];\n";
+            writeNode(node.high);
+        }
+    };
+    writeNode(root);
+    dot_file << "}\n";
+    dot_file.close();
 }
 
 Manager::Manager() {
