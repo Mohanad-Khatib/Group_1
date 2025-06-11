@@ -17,9 +17,9 @@ protected:
         b = manager.createVar("b");
         c = manager.createVar("c");
         d = manager.createVar("d");
-        aOrb = manager.or2(2,3);
-        cAndd = manager.and2(4,5);
-        f = manager.and2(6,7);
+        aOrb = manager.or2(a,b);
+        cAndd = manager.and2(c,d);
+        f = manager.and2(aOrb,cAndd);
     }
 };
 
@@ -103,6 +103,11 @@ TEST_F(testManager, coFactorTrueTest) {
     ASSERT_EQ(manager.coFactorTrue(b,a),b);
     ASSERT_EQ(manager.coFactorTrue(aOrb,a),trueTerminal);
     ASSERT_EQ(manager.coFactorTrue(cAndd,a),cAndd);
+    EXPECT_EQ(manager.coFactorTrue(f, a), cAndd);
+    EXPECT_EQ(manager.coFactorTrue(f, a), manager.coFactorTrue(f));
+    EXPECT_EQ(manager.coFactorTrue(f, b), cAndd);
+    EXPECT_EQ(manager.coFactorTrue(f, c), manager.and2(d, aOrb));
+    EXPECT_EQ(manager.coFactorTrue(f, d), manager.and2(c, aOrb));
 }
 
 TEST_F(testManager, coFactorFalseTest) {

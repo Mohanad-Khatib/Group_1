@@ -3,6 +3,8 @@
 // Created by Markus Wedler 2014
 #pragma once
 #include <vector>
+#include <unordered_map>
+
 #include "ManagerInterface.h"
 
 namespace ClassProject {
@@ -11,21 +13,18 @@ namespace ClassProject {
         BDD_ID id;
         BDD_ID high;
         BDD_ID low;
-        BDD_ID top_var;
-    };
-    struct ComputedTableEntry {
-        BDD_ID f;
-        BDD_ID g;
-        BDD_ID h;
-        BDD_ID r;
+        BDD_ID topVar;
     };
     class Manager final : public ManagerInterface {
     public:
         std::vector<BDDNode> uniqueTable;
-        std::vector<ComputedTableEntry> computedTable;
+        std::unordered_map<size_t, BDD_ID> uniqueTableMap;
+        std::unordered_map<size_t, BDD_ID> computedTable;
         std::string label;
         BDD_ID falseNodeID = 0;
         BDD_ID trueNodeID = 1;
+        static size_t hashFunction(BDD_ID f, BDD_ID g, BDD_ID h);
+        BDD_ID find_or_add_unique_table(BDD_ID v, BDD_ID high, BDD_ID low);
         BDD_ID createVar(const std::string &label) override;
         const BDD_ID &True() override;
         const BDD_ID &False() override;
