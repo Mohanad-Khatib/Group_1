@@ -5,7 +5,6 @@
 #include <fstream>
 #include <functional>
 #include <iostream>
-#include <queue>
 #include <set>
 
 using namespace ClassProject;
