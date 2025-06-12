@@ -54,7 +54,7 @@ BDD_ID Manager::ite(BDD_ID i, BDD_ID t, BDD_ID e) {
         return search->second;
     }
     BDD_ID bigNumber = std::numeric_limits<BDD_ID>::max();
-    BDD_ID topF = isConstant(i) ? bigNumber : topVar(i);
+    BDD_ID topF = topVar(i);
     BDD_ID topG = isConstant(t) ? bigNumber : topVar(t);
     BDD_ID topH = isConstant(e) ? bigNumber : topVar(e);
     BDD_ID topVariable = std::min({topF, topG, topH});
@@ -92,12 +92,12 @@ BDD_ID Manager::coFactorFalse(BDD_ID f) {
 }
 
 BDD_ID Manager::or2(BDD_ID a, BDD_ID b) {
-    label = uniqueTable[a].label + "+" + uniqueTable[b].label;
+    //label = uniqueTable[a].label + "+" + uniqueTable[b].label;
     return ite(a,True(),b);
 }
 
 BDD_ID Manager::and2(BDD_ID a, BDD_ID b) {
-    label = uniqueTable[a].label + "*" + uniqueTable[b].label;
+    //label = uniqueTable[a].label + "*" + uniqueTable[b].label;
     return ite(a,b,False());
 }
 
@@ -110,7 +110,7 @@ BDD_ID Manager::nand2(BDD_ID a, BDD_ID b) {
 }
 
 BDD_ID Manager::neg(BDD_ID a) {
-    label = "~" + uniqueTable[a].label;
+    //label = "~" + uniqueTable[a].label;
     return ite(a,False(),True());
 }
 
@@ -127,10 +127,9 @@ std::string Manager::getTopVarName(const BDD_ID &root) {
 }
 
 void Manager::findNodes(const BDD_ID &root, std::set<BDD_ID> &nodes_of_root) {
-    if (nodes_of_root.count(root)) {
+    if (auto [it, inserted] = nodes_of_root.insert(root); !inserted) {
         return;
     }
-    nodes_of_root.insert(root); // pointer and bool return
     if (isConstant(root)) {
         return;
     }
